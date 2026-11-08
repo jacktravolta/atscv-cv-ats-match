@@ -1,0 +1,12 @@
+.env
+config.local.php
+node_modules/
+vendor/
+*.log
+*.zip
+storage/
+uploads/
+*.png
+*.jpg
+*.jpeg
+.DS_Store

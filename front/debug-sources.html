@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Diagnóstico — fuentes RAG</title>
+<style>
+body { font-family: system-ui, sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; background: #f8fafc; color: #0f172a; }
+.card { background: #fff; border: 1px solid #cbd5e1; border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.ok { border-color: #34d399; background: #ecfdf5; }
+.bad { border-color: #f87171; background: #fef2f2; }
+pre { white-space: pre-wrap; word-break: break-all; font-size: 12px; background: #f1f5f9; padding: 8px; border-radius: 8px; max-height: 220px; overflow: auto; }
+h1 { font-size: 18px; } h2 { font-size: 14px; margin: 0 0 8px; }
+</style>
+</head>
+<body>
+<h1>Diagnóstico de la lista de fuentes</h1>
+<p>Abre esta página en la misma ventana donde usas el panel. Cada tarjeta dice qué pasó.</p>
+<div id="out"></div>
+<script src="api-config.js"></script>
+<script>
+// API(path): todo endpoint del backend (2-servidores).
+window.API = (function () {
+  var base = (typeof window.__API_BASE__ === 'string')
+    ? window.__API_BASE__.trim().replace(/\/+$/, '')
+    : '';
+  return function (path) { return base + path; };
+})();
+</script>
+<script>
+'use strict';
+const out = document.getElementById('out');
+function card(title, bodyText, cls) {
+  const d = document.createElement('div');
+  d.className = 'card ' + (cls || '');
+  d.innerHTML = '<h2>' + title + '</h2><pre></pre>';
+  d.querySelector('pre').textContent = bodyText;
+  out.appendChild(d);
+  return d;
+}
+
+(async () => {
+  const jwt = localStorage.getItem('jwt') || '';
+  card('1 · Token en localStorage', 'localStorage["jwt"]: ' + (jwt ? 'PRESENTE (' + jwt.length + ' chars, …' + jwt.slice(-12) + ')' : 'VACÍO (solo cookie)'), jwt ? 'ok' : 'bad');
+
+  try {
+    const r = await fetch(window.API('/auth/me'), { credentials: 'include', headers: { Authorization: 'Bearer ' + jwt } });
+    const d = await r.json();
+    card('2 · Sesión detectada por el servidor', 'HTTP ' + r.status + '\n' + JSON.stringify(d && d.data || d, null, 2), r.ok ? 'ok' : 'bad');
+  } catch (e) {
+    card('2 · Sesión detectada por el servidor', 'ERROR: ' + e.message, 'bad');
+  }
+
+  const urls = [
+    'con heart: /rag/sources?heart=atscv',
+    'sin heart: /rag/sources'
+  ];
+  for (const label of urls) {
+    const url = label.split(': ')[1];
+    try {
+      const r = await fetch(window.API(url), { credentials: 'include', headers: { Authorization: 'Bearer ' + jwt } });
+      const text = await r.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch (_) { parsed = null; }
+      const count = parsed && parsed.data && Array.isArray(parsed.data.sources) ? parsed.data.sources.length : 'NO';
+      const lines = ['HTTP ' + r.status, 'fuentes devueltas: ' + count, '', text.slice(0, 900)];
+      card('3 · ' + label, lines.join('\n'), r.ok && count !== 'NO' && count > 0 ? 'ok' : 'bad');
+      if (parsed && parsed.data && Array.isArray(parsed.data.sources)) {
+        for (const s of parsed.data.sources) {
+          card('   ↳ fuente', JSON.stringify(s, null, 2), 'ok');
+        }
+      }
+    } catch (e) {
+      card('3 · ' + label, 'ERROR de red/JS: ' + (e && e.stack || e), 'bad');
+    }
+  }
+
+  card('4 · Cómo seguir', 'Copia TODO lo que ves en esta página (Ctrl+A, Ctrl+C) y pégalo en el chat.');
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmar tu correo · CV ATS Match</title>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="api-config.js"></script>
+  <script>
+    // API(path): todo endpoint del backend. En 2-servidores apunta al API
+    // origin (api-config.js); con '' es same-origin puro.
+    window.API = (function () {
+      var base = (typeof window.__API_BASE__ === 'string')
+        ? window.__API_BASE__.trim().replace(/\/+$/, '')
+        : '';
+      return function (path) { return base + path; };
+    })();
+  </script>
+  <style>
+    .ld-modal-in { animation: ld-in .22s ease-out both; }
+    @keyframes ld-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .ld-modal-in { animation: none; } }
+  </style>
+</head>
+<body class="min-h-screen bg-slate-50">
+  <main class="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center px-4 py-12">
+
+    <!-- Estado: verificando -->
+    <div id="state-working" class="w-full rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm ld-modal-in">
+      <svg class="mx-auto h-10 w-10 animate-spin text-brand-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-6.2-8.56" /></svg>
+      <h1 class="mt-3 font-display text-xl font-semibold text-slate-900">Confirmando tu correo…</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">Un momento, casi listo.</p>
+    </div>
+
+    <!-- Estado: éxito -->
+    <div id="state-ok" hidden class="w-full rounded-2xl border border-emerald-200 bg-white p-8 text-center shadow-sm ld-modal-in">
+      <svg class="mx-auto h-12 w-12 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="m8.5 12.5 2.5 2.5 4.5-5" /></svg>
+      <h1 class="mt-3 font-display text-xl font-semibold text-emerald-900">¡Correo confirmado!</h1>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">
+        Tu cuenta queda abierta en el punto exacto donde estaba: tu trabajo, tu saldo y tus movimientos están intactos.
+      </p>
+      <p id="ok-email" class="mt-2 break-all text-xs text-slate-400"></p>
+      <a href="app.html" class="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-brand-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700">
+        Volver a mi panel
+      </a>
+    </div>
+
+    <!-- Estado: error (enlace usado, vencido o incompleto) -->
+    <div id="state-error" hidden class="w-full rounded-2xl border border-amber-200 bg-white p-8 text-center shadow-sm ld-modal-in">
+      <svg class="mx-auto h-12 w-12 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" /></svg>
+      <h1 class="mt-3 font-display text-xl font-semibold text-amber-900">Este enlace ya no está activo</h1>
+      <p id="error-message" class="mt-2 text-sm leading-relaxed text-slate-600"></p>
+      <p class="mt-2 text-sm leading-relaxed text-slate-600">
+        Entra a tu panel: ahí puedes pedir un enlace nuevo y seguir con calma. Nada se perdió.
+      </p>
+      <a href="app.html" class="mt-5 inline-flex h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-6 text-sm font-medium text-slate-700 transition hover:border-slate-400">
+        Ir a mi panel
+      </a>
+    </div>
+
+    <p class="mt-6 max-w-sm text-center text-xs leading-relaxed text-slate-400">
+      Información de apoyo, no asesoría legal. El principio rector: empatía, amabilidad y dignidad humana.
+    </p>
+  </main>
+
+  <script type="module">
+    const working = document.getElementById('state-working');
+    const okBox = document.getElementById('state-ok');
+    const errorBox = document.getElementById('state-error');
+
+    function show(box) {
+      working.hidden = true;
+      okBox.hidden = true;
+      errorBox.hidden = true;
+      box.hidden = false;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const token = (params.get('token') || '').trim();
+
+    if (token === '') {
+      document.getElementById('error-message').textContent =
+        'El enlace llegó incompleto. Ábrelo directo desde el correo que te enviamos.';
+      show(errorBox);
+    } else {
+      try {
+        const res = await fetch(window.API('/auth/reverify'), {
+          method: 'POST',
+          credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+        const data = await res.json().catch(() => null);
+
+        if (res.ok && data?.success) {
+          document.getElementById('ok-email').textContent = data.data?.email || '';
+          show(okBox);
+        } else {
+          const err = data?.error;
+          document.getElementById('error-message').textContent =
+            (typeof err === 'string' ? err : err?.message) || 'El enlace ya fue usado o venció.';
+          show(errorBox);
+        }
+      } catch (_) {
+        document.getElementById('error-message').textContent =
+          'No pudimos confirmar ahora mismo. Revisa tu conexión e intenta abrir el enlace de nuevo.';
+        show(errorBox);
+      }
+    }
+  </script>
+</body>
+</html>
