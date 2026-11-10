@@ -1,0 +1,13 @@
+{
+  "name": "atscv-match-front",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Static front for x",
+  "scripts": {
+    "build:css": "tailwindcss -c tailwind.build.config.js -i css/input.css -o css/tailwind.css --minify",
+    "watch:css": "tailwindcss -c tailwind.build.config.js -i css/input.css -o css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

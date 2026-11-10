@@ -1,0 +1,342 @@
+/* Design tokens for Asistente Jurídico Digital.
+ *
+ * One source of truth for colour, type and motion. Tailwind (loaded from the
+ * CDN) maps these variables to utility classes in /js/tailwind.config.js, so a
+ * theme or skin change is a pure custom-property swap — no class rewrites.
+ *
+ * Themes:  html[data-tema="dia" | "noche"]
+ * Skins:   html[data-skin="teal" | "indigo" | "esmeralda" | "ambar" |
+ *          "rosa" | "violeta"]
+ *
+ * Colour values are stored as space-separated RGB channels so Tailwind can
+ * apply opacity modifiers (bg-surface/80) through `rgb(var(--x) / <alpha>)`.
+ */
+
+/* ------------------------------------------------------------------ *
+ * Type, motion and non-colour tokens (theme-independent)
+ * ------------------------------------------------------------------ */
+:root {
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-body: 'Public Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --ring-width: 3px;
+}
+
+/* ------------------------------------------------------------------ *
+ * Neutral palette — light ("dia")
+ * ------------------------------------------------------------------ */
+:root,
+:root[data-tema='dia'] {
+  --c-bg: 244 247 246;          /* Papel  #F4F7F6 */
+  --c-surface: 255 255 255;     /* cards, inputs */
+  --c-surface-2: 238 243 241;   /* subtle panels */
+  --c-border: 220 229 226;      /* Bruma  #DCE5E2 */
+  --c-border-soft: 234 240 238;
+  --c-border-strong: 196 210 206;
+  --c-text: 18 33 31;           /* Tinta  #12211F */
+  --c-text-muted: 72 96 91;
+  --c-text-subtle: 95 117 112;
+  --c-scrim: 12 20 19;
+
+  --c-success-soft: 230 246 239;
+  --c-success-border: 167 227 200;
+  --c-success-text: 11 107 69;
+
+  --c-warning-soft: 251 241 220;
+  --c-warning-border: 234 211 154;
+  --c-warning-text: 138 90 11;   /* Sello  #8A5A0B */
+
+  --c-danger-soft: 251 231 234;
+  --c-danger-border: 240 183 192;
+  --c-danger-text: 179 34 59;
+
+  --c-info-soft: 228 242 250;
+  --c-info-border: 169 214 238;
+  --c-info-text: 11 94 134;
+
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------ *
+ * Neutral palette — dark ("noche")
+ * ------------------------------------------------------------------ */
+:root[data-tema='noche'] {
+  --c-bg: 12 20 19;             /* Noche  #0C1413 */
+  --c-surface: 21 32 30;
+  --c-surface-2: 27 39 37;
+  --c-border: 44 59 56;
+  --c-border-soft: 34 48 45;
+  --c-border-strong: 60 78 74;
+  --c-text: 232 239 237;
+  --c-text-muted: 174 192 187;
+  --c-text-subtle: 128 150 144;
+  --c-scrim: 0 0 0;
+
+  --c-success-soft: 16 41 31;
+  --c-success-border: 30 74 55;
+  --c-success-text: 111 224 174;
+
+  --c-warning-soft: 42 33 19;
+  --c-warning-border: 74 59 28;
+  --c-warning-text: 240 200 121;
+
+  --c-danger-soft: 44 21 25;
+  --c-danger-border: 78 37 48;
+  --c-danger-text: 243 163 177;
+
+  --c-info-soft: 16 34 44;
+  --c-info-border: 31 68 83;
+  --c-info-text: 124 198 232;
+
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accent — skin "teal" (default) + "indigo", per theme
+ * ------------------------------------------------------------------ */
+:root,
+:root[data-tema='dia'][data-skin='teal'] {
+  --c-accent-soft: 228 243 240;
+  --c-accent: 14 92 85;         /* Abeto  #0E5C55 */
+  --c-accent-hover: 10 71 65;
+  --c-accent-strong: 10 59 54;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='teal'] {
+  --c-accent-soft: 18 48 41;
+  --c-accent: 95 211 192;       /* #5FD3C0 */
+  --c-accent-hover: 75 196 178;
+  --c-accent-strong: 140 234 219;
+  --c-accent-contrast: 6 32 28;
+}
+
+:root[data-tema='dia'][data-skin='indigo'] {
+  --c-accent-soft: 231 231 251;
+  --c-accent: 67 56 202;        /* Índigo  #4338CA */
+  --c-accent-hover: 55 48 163;
+  --c-accent-strong: 49 46 129;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='indigo'] {
+  --c-accent-soft: 30 27 75;
+  --c-accent: 165 180 252;      /* #A5B4FC */
+  --c-accent-hover: 147 165 249;
+  --c-accent-strong: 199 210 254;
+  --c-accent-contrast: 11 16 32;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accent — skin "esmeralda", per theme
+ * ------------------------------------------------------------------ */
+:root[data-tema='dia'][data-skin='esmeralda'] {
+  --c-accent-soft: 209 250 229;
+  --c-accent: 4 120 87;         /* #047857 */
+  --c-accent-hover: 6 95 70;
+  --c-accent-strong: 6 78 59;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='esmeralda'] {
+  --c-accent-soft: 6 59 44;
+  --c-accent: 52 211 153;       /* #34D399 */
+  --c-accent-hover: 16 185 129;
+  --c-accent-strong: 110 231 183;
+  --c-accent-contrast: 6 32 28;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accent — skin "ambar", per theme
+ * ------------------------------------------------------------------ */
+:root[data-tema='dia'][data-skin='ambar'] {
+  --c-accent-soft: 254 243 199;
+  --c-accent: 180 83 9;         /* #B45309 */
+  --c-accent-hover: 146 64 14;
+  --c-accent-strong: 120 53 15;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='ambar'] {
+  --c-accent-soft: 66 46 11;
+  --c-accent: 251 191 36;       /* #FBBF24 */
+  --c-accent-hover: 245 158 11;
+  --c-accent-strong: 253 230 138;
+  --c-accent-contrast: 40 28 6;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accent — skin "rosa", per theme
+ * ------------------------------------------------------------------ */
+:root[data-tema='dia'][data-skin='rosa'] {
+  --c-accent-soft: 252 231 243;
+  --c-accent: 190 24 93;        /* #BE175D */
+  --c-accent-hover: 157 23 77;
+  --c-accent-strong: 131 24 67;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='rosa'] {
+  --c-accent-soft: 65 14 38;
+  --c-accent: 244 114 182;      /* #F472B6 */
+  --c-accent-hover: 236 72 153;
+  --c-accent-strong: 249 168 212;
+  --c-accent-contrast: 45 12 26;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accent — skin "violeta", per theme
+ * ------------------------------------------------------------------ */
+:root[data-tema='dia'][data-skin='violeta'] {
+  --c-accent-soft: 237 233 254;
+  --c-accent: 109 40 217;       /* #6D28D9 */
+  --c-accent-hover: 91 33 182;
+  --c-accent-strong: 76 29 149;
+  --c-accent-contrast: 255 255 255;
+}
+
+:root[data-tema='noche'][data-skin='violeta'] {
+  --c-accent-soft: 41 20 84;
+  --c-accent: 196 181 253;      /* #C4B5FD */
+  --c-accent-hover: 167 139 250;
+  --c-accent-strong: 221 214 254;
+  --c-accent-contrast: 21 12 42;
+}
+
+/* ------------------------------------------------------------------ *
+ * Accessibility: focus indicators and interactive elements
+ * ===================================================================== */
+:focus-visible {
+  outline: var(--ring-width) solid rgb(var(--c-accent));
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+  background-clip: padding-box;
+}
+
+/* Ensure focus ring is visible on all interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: var(--ring-width) solid rgb(var(--c-accent));
+  outline-offset: 2px;
+}
+
+/* Improve focus state for disabled elements */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ensure link underline for non-interactive text */
+a {
+  text-decoration: underline;
+  text-decoration-skip: ink;
+}
+
+/* ------------------------------------------------------------------ *
+ * Base element styles (Tailwind utilities still win when present)
+ * ------------------------------------------------------------------ */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: rgb(var(--c-bg));
+  color: rgb(var(--c-text));
+  font-family: var(--font-body);
+  font-size: 16px; /* WCAG AA mínimo: cuerpo texto 16px mínimo */
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.011em;
+}
+
+/* Theme toggle icons: sun in dark mode, moon in light mode. */
+.icon-sun {
+  display: none;
+}
+
+.icon-moon {
+  display: inline-block;
+}
+
+:root[data-tema='noche'] .icon-sun {
+  display: inline-block;
+}
+
+:root[data-tema='noche'] .icon-moon {
+  display: none;
+}
+
+/* ------------------------------------------------------------------ *
+ * Dark-theme bridges for literal utilities
+ *
+ * Some elements use bg-white / bg-slate-900 as an overlay. They cannot be
+ * remapped through the palette without also changing text-white, so they are
+ * bridged here with a higher-specificity selector.
+ * ------------------------------------------------------------------ */
+:root[data-tema='noche'] .bg-white {
+  background-color: rgb(var(--c-surface));
+}
+
+:root[data-tema='noche'] .bg-white\/80 {
+  background-color: rgb(var(--c-surface) / 0.8);
+}
+
+:root[data-tema='noche'] .bg-white\/90 {
+  background-color: rgb(var(--c-surface) / 0.9);
+}
+
+:root[data-tema='noche'] .focus\:bg-white:focus {
+  background-color: rgb(var(--c-surface));
+}
+
+:root[data-tema='noche'] .bg-slate-900\/40 {
+  background-color: rgb(var(--c-scrim) / 0.6);
+}
+
+/* Accent buttons keep a readable foreground when the accent is light (dark
+ * theme). The accent itself must stay light so accent-coloured *text* on a
+ * dark surface remains legible. */
+:root[data-tema='noche'] .bg-blue-600,
+:root[data-tema='noche'] .bg-brand-600 {
+  color: rgb(var(--c-accent-contrast));
+}
+
+:root[data-tema='noche'] .hover\:bg-blue-700:hover,
+:root[data-tema='noche'] .hover\:bg-brand-700:hover {
+  color: rgb(var(--c-accent-contrast));
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion
+ * ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

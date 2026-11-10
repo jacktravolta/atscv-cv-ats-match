@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="es" data-tema="dia" data-skin="indigo">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.djlabs.cl https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; media-src 'self' data: blob: https:; manifest-src 'self'">
+  <title>CV ATS Match — Analiza tu CV contra la oferta</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sube tu CV y la oferta: te decimos qué le falta a tu perfil para pasar el filtro ATS y adaptamos tu CV.">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <script src="../js/tailwind.config.js"></script>
+  <link rel="stylesheet" href="../css/tokens.css" />
+  <script src="../api-config.js"></script>
+  <script src="../js/inline/cv-ats/index-1.js"></script>
+  <link rel="stylesheet" href="../css/tailwind.css">
+</head>
+<body class="min-h-screen">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+      <a href="../" class="font-display text-lg font-semibold text-blue-600 no-underline">CV ATS Match</a>
+      <span class="text-sm text-slate-600">Gratis · sin instalar nada</span>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 pb-14">
+    <section class="pt-8 pb-6">
+      <h1 class="font-display text-3xl leading-tight md:text-4xl">Sube tu CV y la oferta que quieres. Te digo si pasas el filtro ATS</h1>
+      <p class="mt-3 max-w-2xl text-slate-600">Comparamos tu perfil con la descripción del puesto y te mostramos, con calma, qué palabras clave ya tienes y cuáles faltan. Sin juzgar tu trayectoria.</p>
+    </section>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <!-- Card 1: CV -->
+      <article id="card-cv" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between gap-2">
+          <h2 class="font-display text-xl">Tu CV</h2>
+          <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">Obligatorio</span>
+        </div>
+        <div id="cv-drop" class="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition" role="button" tabindex="0" aria-label="Zona para subir tu CV">
+          <svg class="mb-2 h-8 w-8 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+          <p class="font-medium text-slate-800">Arrastra tu CV aquí</p>
+          <p class="mt-1 text-sm text-slate-600">o haz clic para elegirlo · PDF, DOCX, CSV o una foto del CV impreso</p>
+          <div id="cv-progress-wrap" class="mt-3 hidden w-full max-w-xs">
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200"><div id="cv-progress" class="h-1.5 w-0 rounded-full bg-blue-600 transition-all duration-200"></div></div>
+            <p id="cv-progress-label" class="mt-1 text-xs text-slate-600">Leyendo tu CV… 0%</p>
+          </div>
+          <p id="cv-error" class="mt-3 hidden rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700"></p>
+        </div>
+        <div id="cv-chip" class="mt-3 hidden items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+          <span class="min-w-0 flex-1 truncate text-sm text-slate-800"><strong id="cv-chip-name"></strong> <span id="cv-chip-size" class="text-slate-500"></span></span>
+          <button type="button" id="cv-clear" class="shrink-0 text-sm font-medium text-rose-700 underline">Quitar</button>
+        </div>
+        <input id="cv-input" type="file" class="hidden" accept=".pdf,.docx,.csv,.tsv,.txt,.md,image/*">
+      </article>
+
+      <!-- Card 2: OFERTA -->
+      <article id="card-oferta" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between gap-2">
+          <h2 class="font-display text-xl">La oferta</h2>
+          <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">Obligatorio</span>
+        </div>
+        <div class="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 p-1" role="group" aria-label="Cómo quieres agregar la oferta">
+          <button type="button" id="oferta-tab-texto" class="rounded px-3 py-1.5 text-sm font-medium" aria-pressed="true">Pegar texto</button>
+          <button type="button" id="oferta-tab-archivo" class="rounded px-3 py-1.5 text-sm font-medium" aria-pressed="false">Subir archivo</button>
+        </div>
+
+        <div id="oferta-panel-texto">
+          <label for="oferta-textarea" class="sr-only">Pega aquí la descripción del puesto</label>
+          <textarea id="oferta-textarea" rows="8" class="w-full resize-y rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-800" placeholder="Pega aquí la descripción del puesto: responsabilidades, requisitos y palabras clave."></textarea>
+          <p class="mt-1 text-xs text-slate-600">Pega el texto completo de la publicación.</p>
+        </div>
+
+        <div id="oferta-panel-archivo" class="hidden">
+          <div id="oferta-drop" class="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition" role="button" tabindex="0" aria-label="Zona para subir la oferta">
+            <svg class="mb-2 h-8 w-8 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+            <p class="font-medium text-slate-800">Arrastra la oferta aquí</p>
+            <p class="mt-1 text-sm text-slate-600">PDF de la publicación o captura de pantalla (JPG/PNG)</p>
+            <div id="oferta-progress-wrap" class="mt-3 hidden w-full max-w-xs">
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200"><div id="oferta-progress" class="h-1.5 w-0 rounded-full bg-blue-600 transition-all duration-200"></div></div>
+              <p id="oferta-progress-label" class="mt-1 text-xs text-slate-600">Leyendo la oferta… 0%</p>
+            </div>
+            <p id="oferta-error" class="mt-3 hidden rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700"></p>
+          </div>
+          <div id="oferta-chip" class="mt-3 hidden items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+            <span class="min-w-0 flex-1 truncate text-sm text-slate-800"><strong id="oferta-chip-name"></strong> <span id="oferta-chip-size" class="text-slate-500"></span></span>
+            <button type="button" id="oferta-clear" class="shrink-0 text-sm font-medium text-rose-700 underline">Quitar</button>
+          </div>
+          <input id="oferta-input" type="file" class="hidden" accept=".pdf,image/*">
+        </div>
+        <p id="oferta-source-note" class="mt-2 text-xs text-slate-600">Se usará lo último que hayas agregado.</p>
+      </article>
+    </section>
+
+    <div class="mt-6 flex flex-col items-center gap-2">
+      <button type="button" id="btn-analizar" aria-disabled="true" class="rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white opacity-50 cursor-not-allowed transition hover:bg-blue-700">Analizar Match Gratis</button>
+      <p id="btn-hint" class="text-sm text-slate-600" aria-live="polite">Para continuar, faltan tu CV y la oferta.</p>
+    </div>
+
+    <section id="resultados" class="mt-8" aria-live="polite">
+      <div class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+        <p class="font-medium text-slate-700">Tu análisis aparecerá aquí</p>
+        <p class="mt-1 text-sm text-slate-600">Cuando tengas los dos archivos listos, pulsa el botón. No hay prisa.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-slate-200 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-6 text-sm text-slate-600">
+      <p><a href="../" class="font-medium text-blue-600">Volver al inicio</a></p>
+      <p class="mt-2">Borrador generado con asistencia de IA. No constituye asesoría legal ni garantiza resultado. Requiere revisión humana.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="../js/cv-ats.js?v=11"></script>
+</body>
+</html>

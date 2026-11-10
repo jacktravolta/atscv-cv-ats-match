@@ -1,0 +1,1274 @@
+<!doctype html>
+<html lang="es" data-tema="dia" data-skin="teal">
+<head>
+  <script src="api-config.js"></script>
+  <script src="js/inline/app-1.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://api.djlabs.cl https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; frame-src https://www.youtube-nocookie.com https://player.vimeo.com; media-src 'self' data: blob: https:; manifest-src 'self'">
+  <title>CV ATS Match — Panel</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <!-- Theme boot (same contract as the landing): the visitor's own choice
+       wins first, then the heart's administered defaults (heart-theme.php)
+       apply only when this visitor chose nothing. tokens.css reacts to
+       data-tema/data-skin, so every surface below follows along. -->
+  <script src="js/inline/app-2.js"></script>
+  <!-- Charts for the Uso panel (guarded at runtime in uso.js: if this CDN
+       fails the panel degrades to plain tables, never a broken page). -->
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/tokens.css" />
+  <!-- Heart-administered site colors (heart_settings site_skin/site_tema):
+       applied ONLY when this visitor has no localStorage preference. -->
+  <script src="js/inline/app-3.js"></script>
+  <script type="module" src="js/theme.js"></script>
+  <!-- Animation fallbacks: do not depend on the Tailwind CDN having generated the utilities -->
+  <style>
+    @keyframes cc-spin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: cc-spin 1s linear infinite; }
+    @keyframes cc-bounce { 0%, 100% { transform: translateY(-25%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); } 50% { transform: none; animation-timing-function: cubic-bezier(0, 0, 0.2, 1); } }
+    .animate-bounce { animation: cc-bounce 1s infinite; }
+    @keyframes cc-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .animate-pulse { animation: cc-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    /* Analyzer URL pill glow — same visual as the landing scan form
+       (the Tailwind Play CDN does not ship these keyframes). */
+    @keyframes ld-glow-border {
+      0%, 100% { box-shadow: 0 0 0 0 rgb(var(--c-accent) / 0.30), 0 10px 34px -14px rgb(var(--c-accent) / 0.45); }
+      50% { box-shadow: 0 0 0 7px rgb(var(--c-accent) / 0.10), 0 10px 34px -14px rgb(var(--c-accent) / 0.60); }
+    }
+    .scan-glow { animation: ld-glow-border 2.8s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) {
+      .scan-glow { animation: none; }
+    }
+    /* Wide layout (max-w-6xl): let the panel chat fill the card instead of
+       the shared widget's 768px cap, and stretch the informe's email-style
+       wrapper tables (inline max-width:680px from the analysis engine)
+       across the report card. Classes scoped to this page only. */
+    #chat-section .max-w-3xl { max-width: 100%; }
+    #chat-section .chat-messages table,
+    #history table { width: 100% !important; max-width: 100% !important; }
+    /* Modal WhatsApp-phone: entrada suave (fade + scale). El Play CDN de
+       Tailwind no trae estas keyframes, igual que ld-glow-border arriba. */
+    @keyframes ld-modal-in {
+      from { opacity: 0; transform: scale(0.96) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .ld-modal-card { animation: ld-modal-in 0.28s cubic-bezier(0.16, 1, 0.3, 1); }
+    /* Resaltado del campo teléfono: anillo que late unas veces y se apaga
+       solo. Mismo accent que el glow del scanner para mantener identidad. */
+    @keyframes ld-phone-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgb(var(--c-accent, 79 70 229) / 0.35); border-color: rgb(var(--c-accent, 79 70 229) / 0.85); }
+      50% { box-shadow: 0 0 0 8px rgb(var(--c-accent, 79 70 229) / 0.08); border-color: rgb(var(--c-accent, 79 70 229) / 0.85); }
+    }
+    .ld-phone-pulse { animation: ld-phone-pulse 1.4s ease-in-out 3; }
+    @media (prefers-reduced-motion: reduce) {
+      .ld-phone-pulse, .ld-modal-card { animation: none; }
+    }
+  </style>
+  <link rel="stylesheet" href="css/tailwind.css">
+</head>
+<body class="min-h-screen bg-background text-foreground">
+  <header class="sticky top-0 z-40 border-b border-slate-200 bg-[rgb(var(--c-bg))]/75 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 py-3">
+      <!-- Desktop: brand + pill nav + actions on ONE horizontal line (the
+           flex container never wraps at any width; on tablet/phone the
+           pills move into the burger dropdown below this row). -->
+      <div class="flex items-center justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+          <!-- Logo del panel: escudo con candado (protección de datos) en el
+               color de marca. Decorativo: el h1 vecino lleva el nombre. -->
+          <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white shadow-sm sm:h-9 sm:w-9 sm:rounded-xl" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <rect x="9" y="11" width="6" height="4.5" rx="1" />
+              <path d="M10 11V9.5a2 2 0 014 0V11" />
+            </svg>
+          </span>
+          <h1 class="truncate text-sm sm:text-lg font-semibold">CV ATS Match — Panel</h1>
+          <nav id="header-nav" class="hidden md:flex flex-nowrap items-center gap-1" aria-label="Paneles de la aplicación">
+            <a href="index.html" class="shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">Home</a>
+            <button type="button" class="nav-item shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium bg-brand-600 text-white shadow-sm transition" data-panel="inicio">Panel</button>
+            <button type="button" class="nav-item shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="billetera">Billetera</button>
+            <button type="button" class="nav-item shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="conversaciones">Conversaciones</button>
+            <button type="button" class="nav-item shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="uso">Uso</button>
+            <!-- Gestión vendedor: solo cuentas con role='vendedor' (el arranque
+                 lo revela tras /auth/me; para todos los demás queda oculto). -->
+            <button type="button" id="nav-gestion-vendedor" class="nav-item shrink-0 hidden rounded-full px-3.5 py-1.5 text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="gestion-vendedor">Gestión vendedor</button>
+          </nav>
+        </div>
+        <div class="flex items-center gap-1 sm:gap-3">
+          <!-- Créditos: SIEMPRE visibles y en vivo. El saldo lo repinta
+               syncBalanceDisplays() y el analizador de CV avisa con
+               wallet:balance-updated en el instante en que cobra. -->
+          <button type="button" id="header-credits" class="nav-item inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-800 transition hover:border-amber-300 hover:bg-amber-100 sm:px-3"
+                  data-panel="billetera" title="Tus créditos: ábrelos para ver el detalle">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v10M9.5 9.5h4a1.75 1.75 0 010 3.5h-3a1.75 1.75 0 000 3.5h4" stroke-linecap="round" />
+            </svg>
+            <span id="header-balance" class="tabular-nums">—</span>
+            <span class="hidden sm:inline">créditos</span>
+          </button>
+          <button type="button" data-theme-toggle aria-label="Cambiar tema" title="Cambiar tema"
+                  class="rounded-full p-2 text-slate-500 transition hover:bg-brand-50 hover:text-brand-700">
+            <svg class="icon-sun h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2m0 14v2M5.6 5.6l1.4 1.4m10 10l1.4 1.4M3 12h2m14 0h2M5.6 18.4l1.4-1.4m10-10l1.4-1.4M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <svg class="icon-moon h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12.8A8.5 8.5 0 1111.2 3a6.6 6.6 0 009.8 9.8z"/></svg>
+          </button>
+          <button type="button" id="notifications-bell" class="nav-item relative rounded-full p-2 text-slate-500 transition hover:bg-brand-50 hover:text-brand-700" data-panel="notificaciones" aria-label="Notificaciones" title="Notificaciones">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+            </svg>
+            <span id="notifications-badge" class="hidden absolute -right-0.5 -top-0.5 min-w-[1.1rem] rounded-full bg-red-500 px-1 text-center text-[11px] font-bold leading-[1.1rem] text-white shadow" aria-hidden="true">0</span>
+          </button>
+          <!-- Menú de usuario: el avatar reemplaza el par de chips
+               (nombre/saldo) y el botón plano "Cerrar sesión". Un clic
+               abre el pequeño menú con dos acciones: Perfil y Cerrar
+               sesión; en la lista de navegación ya no vive un acceso a
+               identidad lo pinta el módulo compartido /js/avatar.js
+               (foto si existe, iniciales de color determinístico si
+               no) — el span de abajo es solo la imagen de reserva
+               mientras carga el módulo. -->
+          <div id="user-avatar-wrap" class="relative inline-flex">
+            <button type="button" id="user-avatar-btn" aria-expanded="false" aria-haspopup="true" aria-controls="user-avatar-menu" aria-label="Menú de usuario"
+                    class="inline-flex items-center justify-center rounded-full transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-brand-300">
+              <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-slate-200 text-slate-500" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </span>
+            </button>
+            <div id="user-avatar-menu" role="menu" aria-labelledby="user-avatar-btn"
+                 class="hidden absolute right-0 z-50 mt-2 w-44 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
+                <button type="button" id="user-menu-profile" role="menuitem"
+                      class="block w-full px-3 py-2 text-left text-sm font-medium text-slate-700 transition hover:bg-brand-50 hover:text-brand-700">
+                Perfil
+              </button>
+              <button type="button" id="user-menu-logout" role="menuitem"
+                      class="block w-full px-3 py-2 text-left text-sm font-medium text-rose-600 transition hover:bg-rose-50">
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+          <!-- Burger (tablet/phone only): collapses the nav pills into the
+               dropdown panel below this row. Icon-only button with proper
+               ARIA so it stays keyboard/screen-reader friendly. -->
+          <button type="button" id="header-menu-toggle" aria-expanded="false" aria-controls="header-menu-panel" aria-label="Abrir menú"
+                  class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">
+            <svg id="header-menu-icon-open" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="header-menu-icon-close" class="hidden h-5 w-5 text-slate-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Burger dropdown (tablet/phone): the same pills — the wiring and
+           active-state loops select .nav-item[data-panel], so both copies
+           stay in sync automatically — plus the logout action (on larger
+           screens that action lives in the user avatar menu instead). -->
+      <nav id="header-menu-panel" class="hidden md:hidden mt-3 flex-col gap-1 border-t border-slate-100 pt-3" aria-label="Menú de paneles">
+        <a href="index.html" class="w-full rounded-full px-3.5 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700">Home</a>
+        <button type="button" class="nav-item w-full rounded-full px-3.5 py-2 text-left text-sm font-medium bg-brand-600 text-white shadow-sm transition" data-panel="inicio">Panel</button>
+        <button type="button" class="nav-item w-full rounded-full px-3.5 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="billetera">Billetera</button>
+        <button type="button" class="nav-item w-full rounded-full px-3.5 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="conversaciones">Conversaciones</button>
+        <button type="button" class="nav-item w-full rounded-full px-3.5 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="uso">Uso</button>
+        <button type="button" class="nav-item hidden w-full rounded-full px-3.5 py-2 text-left text-sm font-medium text-slate-600 transition hover:bg-brand-50 hover:text-brand-700" data-panel="gestion-vendedor">Gestión vendedor</button>
+        <button type="button" id="session-logout-mobile" class="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-left text-sm font-medium text-slate-600 transition hover:border-rose-300 hover:text-rose-700">
+          Cerrar sesión
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-8 space-y-8">
+    <!-- Gate: sin sesión -->
+    <section id="gate" class="hidden rounded-2xl border border-slate-200 bg-white p-8 text-center">
+      <h2 class="text-lg font-semibold text-slate-900">Necesitas iniciar sesión</h2>
+      <p class="mt-2 text-sm text-slate-600">Para analizar páginas web necesitas una sesión activa.</p>
+      <a href="index.html" class="mt-4 inline-flex rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700">Ir al inicio</a>
+    </section>
+
+    <!-- App -->
+    <section id="app" class="hidden space-y-8">
+      <!-- CV ATS Match: the analyser lives INSIDE the panel (no iframe,
+           no separate page): the same module the /cv-ats/ route loads. -->
+      <section id="card-cv-ats" class="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+    <div>
+      <h2 class="font-display text-xl font-semibold text-slate-900">Sube tu CV y la oferta que quieres. Te digo si pasas el filtro ATS</h2>
+      <p class="mt-2 text-sm text-slate-600">Comparamos tu perfil con la descripción del puesto y te mostramos, con calma, qué palabras clave ya tienes y cuáles faltan. Sin juzgar tu trayectoria.</p>
+    </div>
+
+    <section class="grid gap-4 md:grid-cols-2">
+      <!-- Card 1: CV -->
+      <article id="card-cv" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between gap-2">
+          <h3 class="font-display text-base font-semibold text-slate-900">Tu CV</h3>
+          <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">Obligatorio</span>
+        </div>
+        <div id="cv-drop" class="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition" role="button" tabindex="0" aria-label="Zona para subir tu CV">
+          <svg class="mb-2 h-8 w-8 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+          <p class="font-medium text-slate-800">Arrastra tu CV aquí</p>
+          <p class="mt-1 text-sm text-slate-600">o haz clic para elegirlo · PDF, DOCX, CSV o una foto del CV impreso</p>
+          <div id="cv-progress-wrap" class="mt-3 hidden w-full max-w-xs">
+            <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200"><div id="cv-progress" class="h-1.5 w-0 rounded-full bg-blue-600 transition-all duration-200"></div></div>
+            <p id="cv-progress-label" class="mt-1 text-xs text-slate-600">Leyendo tu CV… 0%</p>
+          </div>
+          <p id="cv-error" class="mt-3 hidden rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700"></p>
+        </div>
+        <div id="cv-chip" class="mt-3 hidden items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+          <span class="min-w-0 flex-1 truncate text-sm text-slate-800"><strong id="cv-chip-name"></strong> <span id="cv-chip-size" class="text-slate-500"></span></span>
+          <button type="button" id="cv-clear" class="shrink-0 text-sm font-medium text-rose-700 underline">Quitar</button>
+        </div>
+        <input id="cv-input" type="file" class="hidden" accept=".pdf,.docx,.csv,.tsv,.txt,.md,image/*">
+      </article>
+
+      <!-- Card 2: OFERTA -->
+      <article id="card-oferta" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="mb-3 flex items-center justify-between gap-2">
+          <h3 class="font-display text-base font-semibold text-slate-900">La oferta</h3>
+          <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">Obligatorio</span>
+        </div>
+        <div class="mb-3 inline-flex rounded-md border border-slate-200 bg-slate-50 p-1" role="group" aria-label="Cómo quieres agregar la oferta">
+          <button type="button" id="oferta-tab-texto" class="rounded px-3 py-1.5 text-sm font-medium" aria-pressed="true">Pegar texto</button>
+          <button type="button" id="oferta-tab-archivo" class="rounded px-3 py-1.5 text-sm font-medium" aria-pressed="false">Subir archivo</button>
+        </div>
+
+        <div id="oferta-panel-texto">
+          <label for="oferta-textarea" class="sr-only">Pega aquí la descripción del puesto</label>
+          <textarea id="oferta-textarea" rows="8" class="w-full resize-y rounded-lg border border-slate-300 bg-white p-3 text-sm text-slate-800" placeholder="Pega aquí la descripción del puesto: responsabilidades, requisitos y palabras clave."></textarea>
+          <p class="mt-1 text-xs text-slate-600">Pega el texto completo de la publicación.</p>
+        </div>
+
+        <div id="oferta-panel-archivo" class="hidden">
+          <div id="oferta-drop" class="flex min-h-[190px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center transition" role="button" tabindex="0" aria-label="Zona para subir la oferta">
+            <svg class="mb-2 h-8 w-8 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" stroke-linecap="round"/></svg>
+            <p class="font-medium text-slate-800">Arrastra la oferta aquí</p>
+            <p class="mt-1 text-sm text-slate-600">PDF de la publicación o captura de pantalla (JPG/PNG)</p>
+            <div id="oferta-progress-wrap" class="mt-3 hidden w-full max-w-xs">
+              <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-200"><div id="oferta-progress" class="h-1.5 w-0 rounded-full bg-blue-600 transition-all duration-200"></div></div>
+              <p id="oferta-progress-label" class="mt-1 text-xs text-slate-600">Leyendo la oferta… 0%</p>
+            </div>
+            <p id="oferta-error" class="mt-3 hidden rounded-md bg-rose-50 px-3 py-2 text-sm text-rose-700"></p>
+          </div>
+          <div id="oferta-chip" class="mt-3 hidden items-center justify-between gap-3 rounded-md border border-slate-200 bg-slate-50 px-3 py-2">
+            <span class="min-w-0 flex-1 truncate text-sm text-slate-800"><strong id="oferta-chip-name"></strong> <span id="oferta-chip-size" class="text-slate-500"></span></span>
+            <button type="button" id="oferta-clear" class="shrink-0 text-sm font-medium text-rose-700 underline">Quitar</button>
+          </div>
+          <input id="oferta-input" type="file" class="hidden" accept=".pdf,image/*">
+        </div>
+        <p id="oferta-source-note" class="mt-2 text-xs text-slate-600">Se usará lo último que hayas agregado.</p>
+      </article>
+    </section>
+
+    <div class="mt-6 flex flex-col items-center gap-2">
+      <button type="button" id="btn-analizar" aria-disabled="true" class="rounded-lg bg-blue-600 px-6 py-3 text-base font-semibold text-white opacity-50 cursor-not-allowed transition hover:bg-blue-700">Analizar Match Gratis</button>
+      <p id="btn-hint" class="text-sm text-slate-600" aria-live="polite">Para continuar, faltan tu CV y la oferta.</p>
+    </div>
+
+    <section id="resultados" class="mt-8" aria-live="polite">
+      <div class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+        <p class="font-medium text-slate-700">Tu análisis aparecerá aquí</p>
+        <p class="mt-1 text-sm text-slate-600">Cuando tengas los dos archivos listos, pulsa el botón. No hay prisa.</p>
+      </div>
+    </section>
+      </section>
+
+      <!-- Analizador (previous product: kept in the DOM, hidden from view) -->
+      <section class="hidden rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+        <h2 class="text-base font-semibold text-slate-900">Analizar una página web</h2>
+        <p class="text-xs leading-relaxed text-slate-500">
+          Revisión de cumplimiento de la Ley 21.719 (protección de datos personales) sobre el contenido público de la página.
+        </p>
+        <div class="scan-glow relative flex flex-wrap items-center gap-2 rounded-2xl border-2 border-brand-200 bg-white p-2 pl-4 shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" /><path d="M3 12h18" /><path d="M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18z" />
+          </svg>
+          <label for="url-input" class="sr-only">Dirección de la página</label>
+          <input id="url-input" type="url" placeholder="https://ejemplo.com/pagina"
+                 class="h-11 min-w-0 flex-1 basis-56 bg-transparent text-sm text-slate-800 outline-none placeholder:text-slate-400">
+          <button id="quote-btn" type="button"
+                  class="h-11 shrink-0 rounded-xl px-4 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-brand-700">
+            Cotizar
+          </button>
+          <button id="analyze-btn" type="button" disabled
+                  class="h-11 shrink-0 rounded-xl bg-brand-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50">
+            Analizar
+          </button>
+          <button id="ingest-btn" type="button" disabled
+                  class="h-11 shrink-0 rounded-xl px-4 text-sm font-medium text-brand-700 transition hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-50">
+            Capturar contenido
+          </button>
+        </div>
+        <!-- Captura de contenido en curso (con resume por refresh) -->
+        <div id="capture-box" class="hidden rounded-xl border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-900">
+          <p class="flex items-center gap-2">
+            <span class="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-brand-300 border-t-brand-700" aria-hidden="true"></span>
+            <span id="capture-status">Estamos capturando el contenido del sitio, navegando sus páginas. No necesitas recargar ni hacer nada más.</span>
+          </p>
+        </div>
+
+        <!-- Verificación de correo pendiente (regla del umbral de bonus):
+             la cuenta está en pausa hasta confirmar el correo. El aviso va
+             con su propio botón de reenvío: perder el correo no puede
+             dejar a nadie atrapado. -->
+        <div id="verify-box" hidden class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-relaxed text-amber-900">
+          <p id="verify-text">Necesitamos confirmar tu correo para seguir. Te enviamos un enlace de verificación: tu trabajo está guardado y nada se pierde.</p>
+          <button type="button" id="verify-resend"
+                  class="mt-2 rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-amber-900 transition hover:bg-amber-100 disabled:opacity-60">
+            Reenviar el enlace de verificación
+          </button>
+        </div>
+
+        <!-- Cotización -->
+        <div id="quote-box" class="hidden rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">
+          <p id="quote-total" class="font-medium"></p>
+          <p id="quote-detail" class="mt-1 text-xs leading-relaxed text-sky-700"></p>
+          <p class="mt-2 text-xs leading-relaxed text-sky-700">
+            Este análisis es una ayuda generada con IA: no reemplaza la revisión de un profesional.
+            No constituye asesoría legal; requiere revisión humana.
+          </p>
+        </div>
+
+        <p id="error" class="hidden rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900" role="alert"></p>
+
+        <!-- Espera del análisis asíncrono (submit + poll) -->
+        <div id="waiting" class="hidden rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600" role="status" aria-live="polite">
+          <p class="flex items-center gap-2">
+            <span class="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-slate-300 border-t-brand-600" aria-hidden="true"></span>
+            <span>Estamos analizando tu página. Puede tomar unos minutos: no necesitas recargar ni hacer nada más, y <strong class="font-semibold text-slate-700">además te notificaremos por correo cuando tu informe esté listo</strong>. El informe queda guardado en tu panel, puedes cerrar esta pantalla sin problema.</span>
+          </p>
+        </div>
+
+        <!-- Resultado -->
+        <div id="result" class="hidden space-y-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-slate-800">Análisis</h3>
+            <div class="flex items-center gap-2">
+              <span id="result-meta" class="text-xs text-slate-400"></span>
+              <span id="result-actions" class="hidden items-center gap-1"></span>
+            </div>
+          </div>
+          <pre id="result-text" class="whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm leading-relaxed text-slate-700"></pre>
+          <div id="result-html" class="hidden overflow-x-auto rounded-xl border border-slate-200 bg-white p-4 text-sm leading-relaxed text-slate-700" style="max-height: 420px; overflow: auto"></div>
+          <p class="text-xs leading-relaxed text-slate-500">
+            Este análisis es una orientación generada con IA, con empatía y sin presión: no constituye asesoría legal
+            y requiere revisión humana antes de tomar decisiones.
+          </p>
+        </div>
+      </section>
+
+      <!-- Chat IA: el informe (o el aviso de fallo) se entrega como
+           conversación y puede continuarse aquí -->
+      <section id="chat-section" class="rounded-2xl border border-slate-200 bg-white p-5 space-y-3">
+        <div>
+          <h2 class="text-base font-semibold text-slate-900">Conversa sobre tu análisis</h2>
+          <p class="text-xs leading-relaxed text-slate-500">
+            Cada informe queda como contexto de esta conversación: pregúntale al asistente lo que necesites.
+            Cada mensaje consume créditos según la tarifa vigente; tu saldo se muestra al recibir la respuesta.
+          </p>
+        </div>
+        <div id="chat-panel" style="height: 560px; max-height: 70vh"></div>
+      </section>
+
+      <!-- Historial -->
+      <!-- "Tus análisis" queda oculto a propósito: la tarjeta del analizador
+           (arriba) ya es el punto de entrada y esta lista sólo repite el
+           mismo informe. El JS la sigue llenando por si el dueño la
+           vuelve a mostrar. -->
+      <section class="hidden space-y-3">
+        <div class="flex items-center justify-between">
+          <h2 class="text-base font-semibold text-slate-900">Tus análisis</h2>
+          <button id="history-refresh" type="button"
+                  class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:border-blue-400 hover:text-blue-700">
+            Actualizar
+          </button>
+        </div>
+        <div id="history-empty" class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+          Aún no tienes análisis. Abre el analizador de CV para comenzar.
+        </div>
+        <ul id="history" class="space-y-2"></ul>
+      </section>
+
+      <!-- Mis documentos: adjuntos y capturas de URL que alimentan el RAG.
+           Card plegable (mismo patrón data-open-key): arranca minimizada y
+           recuerda si la dejaste abierta (ld_mis_documentos_open). -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <details id="mis-documentos-card" data-open-key="ld_mis_documentos_open">
+          <summary class="flex cursor-pointer select-none items-center justify-between gap-2 text-left">
+            <span class="flex items-baseline gap-2">
+              <span class="text-lg font-semibold text-slate-900">Mis documentos</span>
+              <span class="text-xs text-slate-400">Archivos que el chat usa para responderte</span>
+            </span>
+            <span class="flex-none text-slate-400 transition" data-chevron aria-hidden="true">▾</span>
+          </summary>
+          <div class="mt-3 flex flex-col gap-3">
+            <div id="captures-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+              Aún no tienes documentos. Adjunta un archivo para que el chat pueda usarlo.
+            </div>
+            <!-- The global embed box (embed an assistant on ANY website) is a
+                 feature of the previous product: a CV ATS user has no site to
+                 embed it into. The div is removed on purpose — its renderer
+                 starts with `if (!box) return;`, so it degrades silently. -->
+            <ul id="capture-list" class="space-y-2"></ul>
+          </div>
+        </details>
+      </section>
+
+      <!-- Recarga -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-5 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 class="text-sm font-semibold text-slate-800">¿Sin créditos?</h2>
+          <p class="text-xs leading-relaxed text-slate-500">
+            Recarga tu wallet para seguir analizando CV y ofertas. El saldo se comparte con tu cuenta.
+          </p>
+        </div>
+        <button type="button" id="recarga-open-wallet" class="inline-flex items-center justify-center rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700">
+          Recargar créditos
+        </button>
+      </section>
+    </section>
+
+    <!-- Billetera: mismo módulo y markup que el SPA principal (wallet.js).
+         El saldo grande usa #wallet-balance (el header ya lleva #balance,
+         heart-correcto vía /auth/me?heart=): el observador del boot lo
+         espeja para que ambas vistas muestren el mismo número. -->
+    <section id="panel-billetera" class="hidden space-y-6">
+      <!-- Intro de la billetera: tarjeta plegable (mismo patrón data-open-key
+           que "Cómo funcionan los créditos"). Arranca MINIMIZADA y recuerda
+           si la dejaste abierta (ld_wallet_intro_open). -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <details id="wallet-intro" data-open-key="ld_wallet_intro_open">
+          <summary class="flex cursor-pointer select-none items-center justify-between gap-2 text-left">
+            <span class="text-lg font-semibold text-slate-900">Tu billetera de créditos</span>
+            <span class="flex-none text-slate-400 transition" data-chevron aria-hidden="true">▾</span>
+          </summary>
+          <div class="mt-3 flex flex-col gap-3">
+            <p class="text-sm leading-relaxed text-slate-600">
+              Aquí ves tu saldo, los movimientos de tu cuenta y cuánto cuesta cada operación.
+              Los créditos son la moneda interna del servicio: la referencia de 1 crédito ≈ $1 CLP
+              es solo una ayuda visual; lo importante es que cada operación cuesta exactamente lo que verás abajo.
+            </p>
+          </div>
+        </details>
+      </section>
+
+      <!-- Notices -->
+      <section id="wallet-notice" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900" role="status" aria-live="polite"></section>
+      <section id="wallet-error" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="alert" aria-live="polite"></section>
+
+      <!-- Balance card -->
+      <section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-white shadow-lg">
+        <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/5" aria-hidden="true"></div>
+        <div class="relative flex items-center gap-2">
+          <svg class="h-4 w-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+          <span class="text-sm font-medium text-white/80">Tus créditos disponibles</span>
+        </div>
+        <div class="relative mt-2 flex flex-wrap items-baseline gap-x-2">
+          <span id="wallet-balance" class="text-5xl font-bold tracking-tight">—</span>
+          <span class="text-sm text-white/70">créditos</span>
+          <span id="balance-updated" class="text-xs text-white/50"></span>
+        </div>
+        <p id="balance-hint" class="relative mt-2 text-xs leading-relaxed text-white/70"></p>
+      </section>
+
+      <!-- Top-up -->
+      <section class="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div class="flex flex-col gap-1">
+          <h3 class="text-lg font-semibold text-slate-900">Recargar créditos</h3>
+          <p class="text-sm leading-relaxed text-slate-600">
+            Elige un monto y paga como prefieras. No hay cargos ocultos: cada peso que
+            pagas se convierte en un crédito, y verás el total antes de confirmar.
+          </p>
+        </div>
+
+        <!-- Packs de recarga: una tarjeta seleccionada a la vez (default Pack 2).
+             El monto vive en el input oculto #topup-amount que el flujo de pago
+             de siempre (wallet.js → #topup-submit) sigue leyendo. -->
+        <input type="hidden" id="topup-amount" value="5000">
+
+        <div data-topup-packs class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <button type="button" data-amount="1000" aria-pressed="false" class="topup-pack relative flex flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 aria-pressed:border-brand-600 aria-pressed:bg-brand-50 aria-pressed:ring-2 aria-pressed:ring-brand-600">
+            <span class="text-sm font-semibold text-slate-900">Pack 1 · Arranque</span>
+            <span class="text-lg font-semibold text-slate-900">$1.000 <span class="text-xs font-normal text-slate-500">CLP</span></span>
+            <span class="text-xs font-semibold text-brand-700">→ 1.000 créditos</span>
+            <span class="text-xs leading-relaxed text-slate-500">Para dar los primeros pasos con calma.</span>
+            <span class="mt-1 flex flex-col gap-1 text-xs leading-relaxed text-slate-600">
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Analiza varias páginas y consulta al chat</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Sin suscripción: pagas una vez</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Ideal para conocer la plataforma</span>
+            </span>
+          </button>
+
+          <button type="button" data-amount="5000" aria-pressed="true" class="topup-pack relative flex flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 aria-pressed:border-brand-600 aria-pressed:bg-brand-50 aria-pressed:ring-2 aria-pressed:ring-brand-600">
+            <span class="absolute -top-2.5 left-4 rounded-full bg-brand-600 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm">El más elegido</span>
+            <span class="text-sm font-semibold text-slate-900">Pack 2 · Constante</span>
+            <span class="text-lg font-semibold text-slate-900">$5.000 <span class="text-xs font-normal text-slate-500">CLP</span></span>
+            <span class="text-xs font-semibold text-brand-700">→ 5.000 créditos</span>
+            <span class="text-xs leading-relaxed text-slate-500">Para mantener tus análisis en marcha semana a semana.</span>
+            <span class="mt-1 flex flex-col gap-1 text-xs leading-relaxed text-slate-600">
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Rinde para sesiones de trabajo recurrentes</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Escanea y revisa varias webs</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Saldo compartido con toda tu cuenta</span>
+            </span>
+          </button>
+
+          <button type="button" data-amount="10000" aria-pressed="false" class="topup-pack relative flex flex-col gap-1.5 rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-600 aria-pressed:border-brand-600 aria-pressed:bg-brand-50 aria-pressed:ring-2 aria-pressed:ring-brand-600">
+            <span class="text-sm font-semibold text-slate-900">Pack 3 · A fondo</span>
+            <span class="text-lg font-semibold text-slate-900">$10.000 <span class="text-xs font-normal text-slate-500">CLP</span></span>
+            <span class="text-xs font-semibold text-brand-700">→ 10.000 créditos</span>
+            <span class="text-xs leading-relaxed text-slate-500">El máximo por recarga, para proyectos intensivos.</span>
+            <span class="mt-1 flex flex-col gap-1 text-xs leading-relaxed text-slate-600">
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Tope por recarga del servicio</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Para varias webs o campañas a la vez</span>
+              <span class="flex items-start gap-1.5"><span class="text-brand-600" aria-hidden="true">✓</span>Sin tope mensual: recarga cuando lo necesites</span>
+            </span>
+          </button>
+        </div>
+
+        <p class="text-xs leading-relaxed text-slate-500">
+          1 crédito ≈ $1 CLP (solo referencia visual). Sin suscripción ni cargos ocultos: ves el total antes de confirmar.
+        </p>
+
+        <!-- Documento: boleta por defecto; la factura pide los datos tributarios. -->
+        <div class="flex flex-wrap items-center gap-3" role="radiogroup" aria-label="Tipo de documento">
+          <span class="text-sm font-medium text-slate-700">Documento:</span>
+          <label class="inline-flex items-center gap-1.5 text-sm text-slate-800">
+            <input type="radio" name="topup-doc-type" value="46" class="accent-blue-600" checked>
+            Boleta
+          </label>
+          <label class="inline-flex items-center gap-1.5 text-sm text-slate-800">
+            <input type="radio" name="topup-doc-type" value="33" class="accent-blue-600">
+            Factura
+          </label>
+        </div>
+
+        <div id="topup-fiscal" class="hidden rounded-xl border border-slate-200 bg-slate-50 p-4" role="group" aria-label="Datos tributarios para factura">
+          <p class="text-sm font-semibold text-slate-800">Datos para la factura electrónica</p>
+          <p class="mt-0.5 text-xs text-slate-500">Con estos datos emitimos tu factura. Revísalos con calma: llegan tal cual al documento.</p>
+          <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">RUT <span class="text-slate-400">*</span></span>
+              <input id="topup-rut" type="text" placeholder="12.345.678-5" maxlength="12" autocomplete="off" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+              <span class="text-[11px] text-slate-500">Con punto y guión, ej: 12.345.678-5</span>
+            </label>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">Razón social <span class="text-slate-400">*</span></span>
+              <input id="topup-razon" type="text" maxlength="120" autocomplete="organization" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+            </label>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">Giro <span class="text-slate-400">*</span></span>
+              <input id="topup-giro" type="text" maxlength="120" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+            </label>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">Dirección <span class="text-slate-400">*</span></span>
+              <input id="topup-direccion" type="text" maxlength="160" autocomplete="street-address" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+            </label>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">Comuna <span class="text-slate-400">*</span></span>
+              <input id="topup-comuna" type="text" maxlength="80" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+            </label>
+            <label class="flex flex-col gap-1 text-sm">
+              <span class="font-medium text-slate-700">Correo de contacto <span class="text-slate-400">*</span></span>
+              <input id="topup-email" type="email" maxlength="120" autocomplete="email" class="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-blue-400 focus:outline-none">
+              <span class="text-[11px] text-slate-500">Aquí llega la factura.</span>
+            </label>
+          </div>
+          <p class="mt-3 text-xs leading-relaxed text-slate-500">
+            La boleta no necesita estos datos: solo se piden cuando eliges factura.
+          </p>
+        </div>
+
+        <button id="topup-submit" type="button" class="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+          Ir a pagar
+        </button>
+
+        <p id="topup-cap" class="text-xs leading-relaxed text-slate-500"></p>
+        <p id="topup-fake-note" class="hidden rounded-lg border border-sky-200 bg-sky-50 p-3 text-xs leading-relaxed text-sky-900">
+          Estás en modo prueba: la recarga se acreditará de inmediato y no se cobrará nada real.
+        </p>
+      </section>
+
+      <!-- Voucher de la última recarga confirmada (también se abre desde los
+           movimientos de tipo Recarga). Oculto hasta que exista un comprobante. -->
+      <section id="topup-voucher" class="hidden rounded-2xl border border-emerald-200 bg-emerald-50/60 p-5 shadow-sm" aria-live="polite"></section>
+
+      <!-- Movements: tarjeta plegable (mismo patrón data-open-key que los
+           créditos); los ids internos no cambian y wallet.js sigue
+           llenando la tabla igual. -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+<details id="movements-card" data-open-key="ld_movements_open">
+        <summary class="flex cursor-pointer select-none items-center justify-between gap-2 text-left">
+          <span class="text-lg font-semibold text-slate-900">Movimientos</span>
+          <span class="flex-none text-slate-400 transition" data-chevron aria-hidden="true">▾</span>
+        </summary>
+        <div class="mt-3 flex flex-col gap-3">
+          <div class="flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <button id="movements-prev" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-blue-400 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50">Anterior</button>
+              <button id="movements-next" type="button" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-blue-400 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50">Siguiente</button>
+            </div>
+          </div>
+
+          <div id="movements-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+            Aún no tienes movimientos. Cuando recargues créditos o uses el servicio, aparecerán aquí.
+          </div>
+
+          <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+              <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-4 py-3">Fecha</th>
+                  <th class="px-4 py-3">Tipo</th>
+                  <th class="px-4 py-3 text-right">Monto</th>
+                  <th class="px-4 py-3 text-right">Saldo después</th>
+                </tr>
+              </thead>
+              <tbody id="movements-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+          <p class="text-xs text-slate-400">Mostrando los movimientos más recientes.</p>
+        </div>
+      </details>
+</section>
+
+      <!-- Cómo funcionan los créditos: tarjeta plegable (mismo patrón que el
+           código de inserción global). Arranca MINIMIZADA y recuerda si la
+           dejaste abierta: data-open-key se persiste en el arranque del
+           panel (ld_credits_howto_open). Los ids internos no cambian, así
+           que wallet.js sigue llenando la tabla de tarifas igual. -->
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <details id="credits-howto" data-open-key="ld_credits_howto_open">
+          <summary class="flex cursor-pointer select-none items-center justify-between gap-2 text-left">
+            <span class="text-lg font-semibold text-slate-900">Cómo funcionan los créditos</span>
+            <span class="flex-none text-slate-400 transition" data-chevron aria-hidden="true">▾</span>
+          </summary>
+          <div class="mt-3 flex flex-col gap-3">
+            <p class="text-sm leading-relaxed text-slate-600">
+              Cada operación del servicio cuesta una cantidad fija de créditos, que nunca cambia
+              sin aviso: si ajustamos una tarifa, la nueva versión queda registrada y la anterior
+              sigue visible en el historial. Estos son los valores vigentes hoy.
+            </p>
+
+            <div id="tariffs-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+              No hay tarifas publicadas por ahora. Vuelve en unos minutos.
+            </div>
+
+            <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+              <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
+                  <tr>
+                    <th class="px-4 py-3">Operación</th>
+                    <th class="px-4 py-3 text-right">Créditos</th>
+                    <th class="px-4 py-3 text-right">Límite de tokens</th>
+                  </tr>
+                </thead>
+                <tbody id="tariffs-body" class="divide-y divide-slate-100"></tbody>
+              </table>
+            </div>
+            <p class="text-xs leading-relaxed text-slate-400">
+              El límite de tokens evita operaciones inusualmente grandes por error. Si un documento
+              supera el límite, te avisamos con calma antes de cobrar.
+            </p>
+          </div>
+        </details>
+      </section>
+    </section>
+
+    <!-- Conversaciones de visitantes: turnos anónimos del chat corporativo
+         cobrados a esta cuenta (heart atscv). Mismo patrón que
+         panel-billetera: sección oculta que showPanel alterna. -->
+    <section id="panel-conversaciones" class="hidden space-y-6">
+      <header class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-white shadow-lg">
+        <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/5" aria-hidden="true"></div>
+        <div class="relative flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 01-8 8H5l-2 2V12a8 8 0 018-8h2a8 8 0 018 8z"/></svg>
+            <h2 class="text-lg font-semibold text-white">Conversaciones de tus visitantes</h2>
+          </div>
+          <button id="visitor-conv-refresh" type="button" class="rounded-lg border border-white/40 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10">
+            Actualizar
+          </button>
+        </div>
+        <p class="relative mt-1 text-sm leading-relaxed text-white/80">
+          Preguntas y respuestas del chat de tu sitio web, agrupadas por visitante.
+          Puedes eliminar las que ya no necesites: al borrar una conversación se eliminan también todos sus mensajes.
+        </p>
+      </header>
+
+      <section id="visitor-conv-error" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="alert" aria-live="polite"></section>
+
+      <div id="visitor-conv-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+        Aún no hay conversaciones de visitantes. Cuando alguien use el chat de tu sitio web, aparecerán aquí.
+      </div>
+
+      <div id="visitor-conv-list" class="flex flex-col gap-3"></div>
+
+      <div id="visitor-conv-more-wrap" class="hidden text-center">
+        <button id="visitor-conv-more" type="button" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-brand-400 hover:text-brand-700">
+          Cargar más
+        </button>
+      </div>
+    </section>
+
+    <!-- Uso: dashboard de uso agregado de tu propia cuenta (solo conteos y
+         sumas; nunca contenido de consultas ni documentos). Mismo patrón de
+         secciones ocultas que los demás paneles: showPanel lo alterna y el
+         módulo /js/uso.js carga los datos y los gráficos. -->
+    <section id="panel-uso" class="hidden space-y-6">
+      <header class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-white shadow-lg">
+        <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/5" aria-hidden="true"></div>
+        <div class="relative flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <svg class="h-4 w-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20v-3"/></svg>
+            <h2 class="text-lg font-semibold text-white">Tu uso del servicio</h2>
+          </div>
+          <button id="uso-refresh" type="button" class="rounded-lg border border-white/40 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10">
+            Actualizar
+          </button>
+        </div>
+        <p class="relative mt-1 text-sm leading-relaxed text-white/80">
+          Aquí está el resumen de uso de tu cuenta: qué consultaste, cuánto consumió y dónde quedó tu saldo.
+        </p>
+      </header>
+
+      <section id="uso-error" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="alert" aria-live="polite"></section>
+
+      <!-- Stat cards: el contenido lo pinta uso.js con los datos del
+           resumen agregado (grid-cols-2 en móvil, 6 columnas en desktop). -->
+      <div id="uso-cards" class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6"></div>
+
+      <div class="grid grid-cols-1 gap-4">
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-slate-900">Consultas y tokens por día</h3>
+          <p class="mt-1 text-xs text-slate-500">Últimos 30 días.</p>
+          <div class="mt-4 h-64 sm:h-72" role="img" aria-label="Gráfico de líneas: consultas y tokens por día durante los últimos 30 días">
+            <canvas id="chart-usage-days"></canvas>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-slate-900">Uso por operación</h3>
+          <p class="mt-1 text-xs text-slate-500">Las 12 operaciones más usadas.</p>
+          <div class="mt-4 h-64 sm:h-72" role="img" aria-label="Gráfico de torta: consultas para cada tipo de operación">
+            <canvas id="chart-usage-ops"></canvas>
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 class="text-base font-semibold text-slate-900">Créditos gastados por día</h3>
+          <p class="mt-1 text-xs text-slate-500">Últimos 30 días, según tus movimientos de créditos.</p>
+          <div class="mt-4 h-64 sm:h-72" role="img" aria-label="Gráfico de barras: créditos gastados por día durante los últimos 30 días">
+            <canvas id="chart-usage-credits"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sin Chart.js (CDN bloqueado): uso.js dibuja aquí las mismas
+           tablas simples; el panel nunca queda a medias. -->
+      <div id="uso-charts-fallback" class="hidden space-y-4"></div>
+    </section>
+
+    <!-- Perfil: vista propia de la cuenta (reemplaza al modal que existía
+         antes). Mismas rutas /profile que el SPA principal; el correo es de
+         solo lectura por seguridad de la cuenta. Ancho: main usa max-w-2xl,
+         pero aquí el shell del panel es max-w-6xl y TODAS las demás vistas
+         (Conversaciones, Historial, Uso) van a ese ancho — a 2xl el perfil
+         quedaba como columna apretada. max-w-4xl: centrado, con borde
+         visual claro, y proporcionado dentro del panel. -->
+    <section id="panel-perfil" class="hidden mx-auto max-w-4xl space-y-6 px-4">
+      <!-- Intro card: the balance-card hero skin the owner picked
+           (gradient brand-700→900, overflow-hidden, p-6, shadow-lg,
+           decorative white/10 circles, icon + white title row). Static
+           by design — the collapsible details pattern belongs to the
+           data cards below. Copy text unchanged. -->
+      <header class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-700 to-brand-900 p-6 text-white shadow-lg">
+        <div class="pointer-events-none absolute -right-8 -top-8 h-40 w-40 rounded-full bg-white/10" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-10 -left-6 h-32 w-32 rounded-full bg-white/5" aria-hidden="true"></div>
+        <div class="relative flex items-center gap-2">
+          <svg class="h-4 w-4 text-white/80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-3.6 3.6-5.5 8-5.5s8 1.9 8 5.5"/></svg>
+          <h2 class="text-lg font-semibold text-white">Mi perfil</h2>
+        </div>
+        <p class="relative mt-1 text-sm leading-relaxed text-white/80">
+          Tu nombre y una foto, si quieres. Se muestran en tus conversaciones y en el chat.
+          Sin foto mostramos tus iniciales: nunca queda un espacio en blanco.
+        </p>
+      </header>
+
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="flex flex-col gap-5">
+          <div class="flex flex-wrap items-center gap-4">
+            <div id="profile-avatar" aria-live="polite"></div>
+            <div class="flex flex-col items-start gap-2">
+              <div class="flex flex-wrap gap-2">
+                <button type="button" id="profile-avatar-pick" class="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:border-brand-400 hover:text-brand-700">
+                  Elegir foto
+                </button>
+                <button type="button" id="profile-avatar-remove" class="hidden rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-500 transition hover:border-rose-300 hover:text-rose-600">
+                  Quitar foto
+                </button>
+              </div>
+              <p class="text-xs text-slate-500">JPG, PNG o WebP de hasta 2 MB.</p>
+            </div>
+            <input id="profile-avatar-input" type="file" accept="image/png,image/jpeg,image/webp" class="hidden">
+          </div>
+
+          <form id="profile-form" class="flex flex-col gap-4">
+            <div class="flex flex-col gap-1">
+              <label for="profile-name" class="text-sm font-medium text-slate-700">Nombre</label>
+              <!-- Professional width: name-sized fields read better capped
+                   than stretched edge-to-edge in a wide card. -->
+              <input id="profile-name" name="name" type="text" required minlength="2" maxlength="100" autocomplete="name"
+                     class="w-full max-w-md rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+            </div>
+
+            <div class="flex flex-col gap-1">
+              <label for="profile-email" class="text-sm font-medium text-slate-700">Correo</label>
+              <input id="profile-email" type="email" readonly disabled
+                     aria-describedby="profile-email-hint"
+                     class="w-full max-w-md rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+              <p id="profile-email-hint" class="text-xs text-slate-500">
+                Tu correo no se cambia desde aquí: así tu cuenta sigue siendo tuya con total seguridad.
+              </p>
+            </div>
+
+            <!-- Teléfono y datos de identidad personales (R1.5): ambos
+                 opcionales. La etiquita dice "Documento de identidad" y el
+                 servidor sigue validando el formato chileno (módulo 11).
+                 Vaciar el campo y guardar borra el dato; el servidor vuelve
+                 a validar todo con las mismas reglas que ves aquí.
+                 Compacto: una fila de dos columnas en pantallas medianas en
+                 adelante, apilado en móvil; ambas columnas dentro del mismo
+                 ancho profesional. -->
+            <div class="grid gap-4 sm:max-w-lg sm:grid-cols-2">
+              <div class="flex flex-col gap-1">
+                <label for="profile-phone" class="text-sm font-medium text-slate-700">
+                  Teléfono <span class="font-normal text-slate-400">(opcional)</span>
+                </label>
+                <input id="profile-phone" type="tel" placeholder="+56 9 1234 5678" maxlength="24" autocomplete="tel"
+                       class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                <p class="text-xs text-slate-500">Solo dígitos, con o sin +56. Lo guardamos tal como lo escribas.</p>
+              </div>
+
+              <div class="flex flex-col gap-1">
+                <label for="profile-rut" class="text-sm font-medium text-slate-700">
+                  Documento de identidad <span class="font-normal text-slate-400">(opcional)</span>
+                </label>
+                <input id="profile-rut" type="text" placeholder="12.345.678-5" maxlength="12" autocomplete="off"
+                       class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+                <p class="text-xs text-slate-500">Por ahora validamos el formato chileno (RUT) en el servidor; tu dato queda guardado solo si lo escribes.</p>
+              </div>
+            </div>
+
+            <div id="profile-ok"
+                 class="hidden w-full max-w-md rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+                 role="status" aria-live="polite"></div>
+            <div id="profile-error"
+                 class="hidden w-full max-w-md rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+                 role="alert"></div>
+
+            <div class="flex justify-end">
+              <button type="submit" id="profile-save"
+                      class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60">
+                Guardar cambios
+              </button>
+            </div>
+          </form>
+
+          <!-- Danger zone: permanent account deletion (confirm = typed BORRAR).
+               Collapsed by default in a native <details> card — the same
+               data-open-key persistence pattern as the movements cards — so
+               the closed state stays quiet (small rose dot accent only; the
+               rose warning color shows once the danger is expanded).
+               Same copy approach as the main SPA (index.html tpl-settings),
+               updated for the bajas record: correo, nombre, teléfono and the
+               optional reason survive in the owner's cancellation history;
+               the anti-fraud hash continues guarding the welcome bonus. -->
+          <details data-open-key="ld-profile-danger-open" class="rounded-2xl border border-slate-200 bg-white">
+            <summary class="flex cursor-pointer select-none items-center justify-between gap-2">
+              <span id="profile-delete-account-label" class="flex min-w-0 items-center gap-2 text-sm font-medium text-slate-700">
+                <span aria-hidden="true" class="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500"></span>
+                Eliminar mi cuenta
+              </span>
+              <span class="flex-none text-slate-400 transition" data-chevron aria-hidden="true">▾</span>
+            </summary>
+            <div class="mt-4 flex items-start justify-between gap-4 rounded-2xl border border-rose-200 bg-rose-50 p-4">
+              <div class="flex flex-col gap-1">
+                <p class="text-xs leading-relaxed text-slate-600">
+                  Al eliminar tu cuenta se borra todo: tu cuenta, tus análisis, tus documentos,
+                  tus conversaciones y el historial de tu saldo. No hay vuelta atrás. Se conserva un
+                  registro interno de bajas con tu correo, tu nombre, tu teléfono y, si lo escribes,
+                  tu motivo; y un hash de tu correo evita que el bono de bienvenida se entregue de
+                  nuevo si algún día vuelves con el mismo correo.
+                </p>
+              </div>
+              <button type="button" id="profile-delete-account"
+                      class="shrink-0 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-60">
+                Eliminar mi cuenta
+              </button>
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <!-- Notificaciones: switches por canal (NotMail / NotWsp), los mismos
+           ids que el SPA principal (index.html). Ausencia de preferencia =
+           habilitado; la bandeja interna (NotInterna) no es switchable por
+           diseño: es el registro propio de la plataforma, no un canal
+           externo. PUT /profile/notifications persiste al instante. -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <h3 class="text-sm font-semibold text-slate-800">Notificaciones</h3>
+        <p class="mt-1 text-xs leading-relaxed text-slate-500">
+          Tú decides por dónde te avisamos. Si apagas un canal, tus avisos siguen llegando por los que dejes encendidos — y tu bandeja dentro de la plataforma siempre recibe todo.
+        </p>
+
+        <div class="mt-4 flex items-start justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <span id="notify-mail-label" class="text-sm font-medium text-slate-700">Avisos por correo</span>
+            <p class="text-xs text-slate-500">Recargas, análisis listos y avisos de cuidado llegan a tu correo.</p>
+          </div>
+          <label for="notify-mail-toggle" class="relative mt-0.5 inline-flex shrink-0 cursor-pointer items-center">
+            <input id="notify-mail-toggle" type="checkbox" role="switch" aria-labelledby="notify-mail-label" class="peer sr-only">
+            <span aria-hidden="true" class="block h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-400 peer-focus-visible:ring-offset-2"></span>
+            <span aria-hidden="true" class="absolute left-0.5 top-0.5 block h-5 w-5 bg-white shadow-sm transition-transform peer-checked:translate-x-5"></span>
+          </label>
+        </div>
+
+        <div class="mt-3 flex items-start justify-between gap-4">
+          <div class="flex flex-col gap-1">
+            <span id="notify-wsp-label" class="text-sm font-medium text-slate-700">Avisos por WhatsApp</span>
+            <p class="text-xs text-slate-500">Los mismos avisos, al teléfono que guardaste arriba. Puedes apagarlos o encenderlos cuando quieras.</p>
+            <button type="button" id="notify-wsp-need-phone" class="hidden w-fit text-xs font-medium text-brand-700 underline decoration-dotted underline-offset-2 transition hover:text-brand-800">
+              Agrega tu teléfono para activar WhatsApp
+            </button>
+          </div>
+          <label for="notify-wsp-toggle" class="relative mt-0.5 inline-flex shrink-0 cursor-pointer items-center">
+            <input id="notify-wsp-toggle" type="checkbox" role="switch" aria-labelledby="notify-wsp-label" class="peer sr-only">
+            <span aria-hidden="true" class="block h-6 w-11 rounded-full bg-slate-300 transition peer-checked:bg-brand-600 peer-focus-visible:ring-2 peer-focus-visible:ring-brand-400 peer-focus-visible:ring-offset-2"></span>
+            <span aria-hidden="true" class="absolute left-0.5 top-0.5 block h-5 w-5 bg-white shadow-sm transition-transform peer-checked:translate-x-5"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Contraseña: crear (cuentas de solo enlace mágico) o cambiar la
+           contraseña de la cuenta. Al actualizarla la sesión actual sigue
+           abierta: nadie pierde su trabajo a mitad de algo. -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <form id="password-form" class="flex flex-col gap-4" novalidate>
+          <div class="flex flex-col gap-1">
+            <h3 class="text-base font-semibold text-slate-900">Contraseña</h3>
+            <p id="password-hint" class="max-w-xl text-sm leading-relaxed text-slate-600"></p>
+          </div>
+
+          <div id="password-current-wrap" class="hidden flex w-full max-w-md flex-col gap-1">
+            <label for="password-current" class="text-sm font-medium text-slate-700">Contraseña actual</label>
+            <!-- Password fields reveal with an inline eye icon: quiet,
+                 keyboard reachable, aria-pressed mirrors the state. -->
+            <div class="relative">
+              <input id="password-current" type="password" autocomplete="current-password"
+                     class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-11 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+              <button type="button" data-password-eye aria-pressed="false" aria-label="Mostrar contraseña" title="Mostrar contraseña"
+                      class="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300">
+                <svg data-eye-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <svg data-eye-off-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="hidden h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Password-change fields follow the profile panel width
+               discipline (max-w-md, left aligned) instead of spanning the
+               whole card; the reveal buttons ride inside the wrappers. -->
+          <div class="flex w-full max-w-md flex-col gap-1">
+            <label for="password-new" class="text-sm font-medium text-slate-700">Nueva contraseña</label>
+            <div class="relative">
+              <input id="password-new" type="password" autocomplete="new-password" minlength="8" maxlength="72"
+                     class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-11 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+              <button type="button" data-password-eye aria-pressed="false" aria-label="Mostrar contraseña" title="Mostrar contraseña"
+                      class="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300">
+                <svg data-eye-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <svg data-eye-off-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="hidden h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              </button>
+            </div>
+            <!-- Strength meter: ADVISORY ONLY (limits live server-side;
+                 bcrypt hashes whatever the user picked). Zero-blame copy. -->
+            <div id="password-strength" class="hidden flex flex-col gap-1" role="status" aria-live="polite">
+              <div class="flex gap-1" aria-hidden="true">
+                <span data-strength-seg class="h-1.5 flex-1 rounded-full bg-slate-200 transition"></span>
+                <span data-strength-seg class="h-1.5 flex-1 rounded-full bg-slate-200 transition"></span>
+                <span data-strength-seg class="h-1.5 flex-1 rounded-full bg-slate-200 transition"></span>
+              </div>
+              <p data-strength-text class="text-xs text-slate-500"></p>
+            </div>
+          </div>
+
+          <div class="flex w-full max-w-md flex-col gap-1">
+            <label for="password-confirm" class="text-sm font-medium text-slate-700">Confirmar nueva contraseña</label>
+            <div class="relative">
+              <input id="password-confirm" type="password" autocomplete="new-password" minlength="8" maxlength="72"
+                     class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 pr-11 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+              <button type="button" data-password-eye aria-pressed="false" aria-label="Mostrar contraseña" title="Mostrar contraseña"
+                      class="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-300">
+                <svg data-eye-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <svg data-eye-off-icon xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.7" stroke="currentColor" class="hidden h-5 w-5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              </button>
+            </div>
+            <p class="text-xs text-slate-500">Mínimo 8 caracteres. Úsala solo en esta cuenta y guárdala con calma.</p>
+          </div>
+
+          <div id="password-ok"
+               class="hidden rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800"
+               role="status" aria-live="polite"></div>
+          <div id="password-error"
+               class="hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+               role="alert" aria-live="polite"></div>
+
+          <div class="flex justify-end">
+            <button type="submit" id="password-save"
+                    class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60">
+              Actualizar contraseña
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Datos de la cuenta: solo lectura y con calma. El correo sigue en la
+           tarjeta de arriba con su explicación de seguridad. -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-col gap-1">
+            <h3 class="text-base font-semibold text-slate-900">Datos de tu cuenta</h3>
+            <p class="text-sm leading-relaxed text-slate-600">
+              Información de solo lectura, para que sepas siempre cómo está tu cuenta.
+            </p>
+          </div>
+          <dl class="flex flex-col gap-2 text-sm">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+              <dt class="text-slate-500">Miembro desde</dt>
+              <dd id="account-since" class="font-medium text-slate-800">—</dd>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+              <dt class="text-slate-500">Rol</dt>
+              <dd id="account-role" class="font-medium text-slate-800">—</dd>
+            </div>
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <dt class="text-slate-500">Estado</dt>
+              <dd id="account-status" class="font-medium text-slate-800">—</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <p class="text-xs leading-relaxed text-slate-500">
+        ¿Necesitas el asistente completo?
+        <a href="index.html" class="text-brand-700 underline-offset-2 hover:underline">Abrir la aplicación principal</a>.
+      </p>
+    </section>
+
+    <!-- Gestión vendedor: pestaña visible SOLO para cuentas con
+         role='vendedor'. Enlace de referidos, personas que llegaron por él y
+         total ganado. Los datos se cargan al abrir el panel (lazy, igual que
+         Billetera/Conversaciones). La lista nunca muestra correos: nombre,
+         fecha y comisión bastan para reconocer a quién llegó. -->
+    <section id="panel-gestion-vendedor" class="hidden space-y-6">
+      <header class="flex flex-col gap-2">
+        <h2 class="text-2xl font-semibold text-slate-900 sm:text-3xl">Gestión vendedor</h2>
+        <p class="text-sm leading-relaxed text-slate-600 sm:text-base">
+          Comparte tu enlace: cada persona que cree su cuenta llegando por él queda asociada a ti,
+          y su primera recarga te suma una comisión única del 50% a tu billetera.
+        </p>
+      </header>
+
+      <section id="gestion-vendedor-error" class="hidden rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="alert" aria-live="polite"></section>
+
+      <!-- Tarjeta 1: el enlace para compartir -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="flex flex-col gap-3">
+          <h3 class="text-base font-semibold text-slate-900">Tu enlace de referidos</h3>
+          <p class="text-sm leading-relaxed text-slate-600">
+            Compártelo tal cual: cualquier persona que se registre desde ese enlace queda asociada a ti.
+          </p>
+          <div class="flex flex-col gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="text-xs font-medium uppercase tracking-wide text-slate-400">Tu código</span>
+              <span id="referral-code" class="rounded-lg bg-slate-900 px-3 py-1 text-sm font-semibold tracking-widest text-emerald-200">—</span>
+            </div>
+            <pre id="referral-link" class="overflow-x-auto rounded-lg bg-slate-900 p-3 text-[11px] leading-relaxed text-emerald-200">—</pre>
+            <div class="flex items-center gap-2">
+              <button type="button" id="referral-copy"
+                      class="rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700">
+                Copiar enlace
+              </button>
+              <span id="referral-copy-note" class="text-[11px] text-slate-500"></span>
+            </div>
+            <p class="text-xs leading-relaxed text-slate-500">
+              Quien se registre con este enlace quedará habilitado en este corazón (CV ATS Match)
+              y recibirá aquí sus 100 créditos de bienvenida. Tu comisión también llegará a este corazón
+              con su primera recarga real.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 2: quiénes llegaron por el enlace -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="flex flex-col gap-3">
+          <h3 class="text-base font-semibold text-slate-900">Usuarios que llegaron por tu enlace</h3>
+          <div id="referrals-empty" class="hidden rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center text-sm text-slate-500">
+            Todavía no llega nadie por tu enlace. Compártelo con calma: cada persona que se registre
+            aparecerá aquí con su fecha y el estado de su comisión.
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead class="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
+                <tr>
+                  <th class="px-3 py-3">Nombre</th>
+                  <th class="px-3 py-3">Fecha de registro</th>
+                  <th class="px-3 py-3">Comisión pagada</th>
+                  <th class="px-3 py-3 text-right">Monto comisión</th>
+                </tr>
+              </thead>
+              <tbody id="referrals-body" class="divide-y divide-slate-100"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta 3: total ganado -->
+      <div class="rounded-2xl border border-slate-200 bg-white p-5">
+        <div class="flex flex-col gap-2">
+          <h3 class="text-base font-semibold text-slate-900">Total ganado por referidos</h3>
+          <p id="referrals-total" class="text-4xl font-bold tracking-tight text-emerald-600">0 créditos</p>
+          <p class="text-xs leading-relaxed text-slate-500">
+            Se acredita a tu billetera cuando tu referido hace su primera recarga. Solo la primera:
+            las recargas siguientes de la misma persona no suman comisión.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notificaciones internas: mismo markup e ids que el SPA principal
+         (tpl-notifications), manejados por notifications.js?v=7 -->
+    <section id="panel-notificaciones" class="hidden">
+      <div class="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-semibold text-slate-900">Notificaciones</h2>
+            <p class="text-sm text-slate-500">Todo lo que necesitamos contarte, en un solo lugar.</p>
+          </div>
+          <div class="flex gap-1">
+            <button id="notifications-read-all" type="button" title="Marcar todas como leídas" aria-label="Marcar todas como leídas"
+                    class="rounded-lg p-2 text-slate-400 transition hover:bg-slate-100 hover:text-brand-700">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2 13.5l3.5 3.5L12 9" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 13.5l3.5 3.5L18.5 9" />
+              </svg>
+            </button>
+            <button id="notifications-clear" type="button" title="Vaciar notificaciones" aria-label="Vaciar notificaciones"
+                    class="rounded-lg p-2 text-slate-400 transition hover:bg-red-50 hover:text-red-600">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <p id="notifications-error" class="hidden mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900" role="alert" aria-live="polite"></p>
+        <p id="notifications-ok" class="hidden mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900" role="status" aria-live="polite"></p>
+
+        <div id="notifications-empty" class="hidden mt-6 rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
+          <p class="text-3xl" aria-hidden="true">🕊️</p>
+          <p class="mt-3 text-sm font-medium text-slate-700">No tienes notificaciones</p>
+          <p class="mt-1 text-sm text-slate-500">Todo tranquilo por aquí. Te avisaremos cuando haya algo importante para ti.</p>
+        </div>
+
+        <ul id="notifications-list" class="mt-6 space-y-3" aria-live="polite"></ul>
+      </div>
+
+      <!-- Reply modal: same warm editor the admin uses, one Quill instance. -->
+      <div id="reply-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/40 p-4">
+        <div class="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 shadow-lg">
+          <h3 class="text-lg font-semibold text-slate-900">Responder mensaje</h3>
+          <p id="reply-target" class="mt-1 text-sm text-slate-600"></p>
+          <div id="reply-quill" class="mt-3 rounded-xl border border-slate-300 bg-white"></div>
+          <p id="reply-error" class="hidden mt-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900" role="alert"></p>
+          <div class="mt-3 flex justify-end gap-2">
+            <button type="button" id="reply-cancel" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400">Cancelar</button>
+            <button type="button" id="reply-send" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60">Enviar respuesta</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  <!-- Modal WhatsApp-phone: NIVEL <main> — NUNCA dentro de un panel. La
+       primera version vivia dentro de panel-notificaciones (hidden): heredaba
+       su display:none, el modal se "mostraba" invisible y el flag de
+       una-vez se consumia sin que nadie lo viera. Desde aqui es visible
+       desde cualquier panel del app. Se ofrece UNA vez por usuario
+       (localStorage ld:wsp-phone-modal-seen:v2:{userId}); explica el
+       beneficio sin presion, guarda por el mismo PUT /profile del formulario
+       y al exito resalta el campo telefono con un anillo latiente
+       (ld-phone-pulse). Cerrar = "Ahora no" (sin penalizacion: el switch
+       queda deshabilitado y el boton del panel lo reabre). -->
+  <div id="wsp-phone-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/60 p-4" role="dialog" aria-modal="true" aria-labelledby="wsp-phone-title">
+    <div class="ld-modal-card w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+      <div class="flex items-start gap-3">
+        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+          </svg>
+        </span>
+        <div class="min-w-0">
+          <h3 id="wsp-phone-title" class="text-base font-semibold text-slate-900">¿Te avisamos por WhatsApp?</h3>
+          <p class="mt-1 text-sm leading-relaxed text-slate-600">
+            Guarda tu teléfono y te avisamos por WhatsApp en los momentos importantes de tus procesos:
+            cuando tu análisis esté listo, cuando se acredite una recarga y los avisos de cuidado.
+            Solo lo esencial, sin spam.
+          </p>
+        </div>
+      </div>
+
+      <form id="wsp-phone-form" class="mt-4 flex flex-col gap-3" novalidate>
+        <label for="wsp-phone-input" class="text-sm font-medium text-slate-700">Tu teléfono</label>
+        <input id="wsp-phone-input" type="tel" placeholder="+56 9 1234 5678" maxlength="24" autocomplete="tel"
+               class="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100">
+        <p id="wsp-phone-error" class="hidden rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900" role="alert"></p>
+
+        <div class="mt-1 flex justify-end gap-2">
+          <button type="button" id="wsp-phone-later" class="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-400">Ahora no</button>
+          <button type="submit" id="wsp-phone-save" class="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-700 disabled:opacity-60">Guardar y activar</button>
+        </div>
+
+        <p class="text-xs leading-relaxed text-slate-500">
+          Puedes cambiarlo después en tu perfil, y apagar los avisos por WhatsApp cuando quieras.
+        </p>
+      </form>
+    </div>
+  </div>
+  </main>
+
+  <script src="js/inline/app-4.js"></script>
+
+  <script src="js/inline/app-5.js"></script>
+
+  <script type="module" src="js/cv-ats.js?v=11"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# leylaboral.djlabs.cl — front independiente (Asistente Laboral).
+#
+# Este folder es el document root de su propio dominio. No hay secretos
+# aquí (el front no guarda tokens: la sesión vive en cookies httpOnly del
+# backend), asi que basta con ordenar el servicio y no exponer listados.
+
+Options -Indexes
+
+# La portada es la landing; el panel vive en app.html.
+DirectoryIndex index.html
+
+<IfModule mod_headers.c>
+    # El front no carga recursos de terceros salvo el CSS del CDN de
+    # Tailwind y los scripts de la plataforma: no hay necesidad de abrir
+    # la politica de frames a cualquier origen.
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
