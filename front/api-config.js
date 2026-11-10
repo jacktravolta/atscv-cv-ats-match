@@ -4,12 +4,11 @@
 // the modules, and the deploy can rewrite just this one file on the
 // frontend server.
 //
-// The value below is the CURRENT one: the API is NOT published under a
-// domain name yet (api.djlabs.cl does not resolve), so every call resolves
-// against the local API origin, never against the front's own domain. The
-// API is the only one that knows about accounts, credits, documents and
-// the RAG. When the API gets its own domain, THIS is the single line to
-// change: nothing else in the front hardcodes an origin.
+// The value below points at the production API origin: https://api.djlabs.cl.
+// The API is the only one that knows about accounts, credits, documents and
+// the RAG, so every call of the front goes there — never against the front's
+// own domain. THIS is the single line to change when the API moves: nothing
+// else in the front hardcodes an origin.
 //
 // LOCAL: two ways to point a local run at a local API, and both are
 // development-only (the file on the server always carries the real
@@ -37,8 +36,10 @@
     } catch (e) {
       local = null;
     }
-    // No domain for the API yet: the local origin is the real one.
-    definido = local || 'http://127.0.0.1:8099';
+    // Production default: the unified API. The localhost override above is
+    // the ONLY way to point this front somewhere else, and it works only on
+    // localhost.
+    definido = local || 'https://api.djlabs.cl';
   }
 
   window.__API_BASE__ = definido;
